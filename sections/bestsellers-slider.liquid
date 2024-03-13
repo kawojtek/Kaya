@@ -1,0 +1,391 @@
+{% comment %}
+  BESTSELLER SLIDER USING SWIPE JS
+{% endcomment %}
+
+{{ 'swiper-bundle.min.css' | asset_url | stylesheet_tag }}
+{{ 'swiper-bundle.min.js' | asset_url | script_tag }}
+
+{% assign viewed_product = product %}
+{% assign viewed_product_category = viewed_product.collections.first.products %}
+{% assign counter = 1 %}
+
+{% if viewed_product_category %}
+  <div class="slider-container page-width">
+    <div class="arrows-nav">
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+    <h3 class="slider-heading-text">{{ section.settings.heading }}</h3>
+    <button>{{ section.settings['button-text'] }}</button>
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        {% for product in viewed_product_category %}
+          {% if product.tags contains 'Bestseller' %}
+            {% if product.id != viewed_product.id %}
+              <div class="swiper-slide">
+                <div class="slider-box">
+                  <a href="{{ product.url }}">
+                    <div class="slider-image">
+                      {% if product.compare_at_price > product.price %}
+                        <span class="badge badge--sale">
+                          {% assign price_difference = product.compare_at_price | minus: product.price %}
+                          {% assign price_drop_percentage = price_difference
+                            | times: 100.0
+                            | divided_by: product.compare_at_price
+                          %}
+                          <p>-{{ price_drop_percentage | round: 0 }}% znizki</p>
+                        </span>
+                      {% endif %}
+
+                      <img src="{{ product.images[0] | img_url: '600x600' }}" alt="{{product.images[0].alt}}">
+                    </div>
+                  </a>
+                  <div class="slider-text">
+                    <div class="text-content">
+                      <div class="jdgm-widget jdgm-preview-badge" data-id="{{ product.id }}">
+                        {{ product.metafields.judgeme.badge }}
+                      </div>
+                      <h3 class="heading-inner">
+                        <a href="{{ product.url }}">
+                          {{ product.title }}
+                        </a>
+                      </h3>
+                      <div class="slider-desc">
+                        <p>{{ product.description | truncate: 35 }}</p>
+                      </div>
+                    </div>
+
+                    <div class="slider-price">
+                      {% if product.compare_at_price_min > product.price %}
+                        <span class="compare-price">{{ product.price | money_without_currency }} zł</span>
+                        <span class="sale-price">{{ product.compare_at_price_min | money_without_currency }} zł</span>
+                      {% else %}
+                        <p class="regular-price">{{ product.price | money_without_currency }} zł</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- MAX NUMBER OF SLIDES -->
+            {% if counter >= 8 %}
+              {% break %}
+            {% else %}
+              {% assign counter = counter | plus: 1 %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+{% endif %}
+<style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+
+  /* ----- HEADER TITLE SECTION ----- */
+
+    .slider-heading-text, .slider-container button {
+      grid-column: span 2;
+    }
+
+    .slider-heading-text{
+      font-size: 40px;
+    }
+
+    @media screen and (max-width: 749px){
+      .slider-heading-text{
+        font-size: 36px
+      }
+    }
+
+    .arrows-nav, .swiper-container {
+      grid-column: 1 / -1;
+    }
+
+    .slider-heading-text, .slider-container button {
+      grid-column: auto;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+     .slider-container button {
+      max-height: 52px;
+      padding: 17px;
+      font-size: 12px;
+      font-weight: 600;
+      background: black;
+      color: white !important;
+      border: none;
+      display: flex;
+      justify-self: right;
+    }
+
+    @media screen and (max-width: 749px){
+
+      .slider-container button {
+        order: 1;
+      }
+      .swiper-container {
+        order: 0;
+      }
+      .slider-container button {
+        justify-self: left !important;
+      }
+      .slider-heading-text, .slider-container button {
+        grid-column: 1/3;
+      }
+    }
+
+  /* ----- END OF HEADER TITLE SECTION ----- */
+  /* ----- SWIPER JS ----- */
+
+    .swiper-container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 52px 0px;
+    }
+
+    @media screen and (max-width: 749px){
+      .swiper-container {
+        padding: 32px 0px;
+      }
+    }
+
+    .swiper-wrapper {
+      position: relative;
+      width: 252px;
+      height: 100%;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+    }
+
+    .slider-container {
+      display: flex;
+      overflow: visible;
+      justify-content: center;
+      align-items: center;
+      width: auto;
+      gap: 20px;
+      padding: 30px 40px;
+      margin: auto;
+      flex-direction: column;
+      background-color: {{ section.settings.main-bg-color }}
+     }
+
+    @media screen and (max-width: 749px){
+      .slider-container {
+        padding: 30px 1.5rem;
+      }
+    }
+
+    .slider-container.page-width {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+    }
+
+    .slider-image {
+      width: 100%;
+      height: 336px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slider-box {
+      width: 252px;
+      height: 100%;
+      display: grid;
+      column-gap: 24px;
+      grid-template-columns: 1fr;
+    }
+
+    .slider-desc p {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .slider-text .heading-inner {
+       font-size: 20px;
+     }
+
+    .shopify-section {
+      overflow: hidden;
+    }
+
+    .slider-main {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       gap: 20px;
+     }
+
+    .slider-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* Sale badge */
+    .badge.badge--sale{
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      border-radius: 4px;
+      background: #E35249;
+      color: white;
+      font-size: 14px;
+    }
+
+      /* Nav arrows */
+    .swiper-button-next:after {
+      content: "next";
+      background-color: white;
+      color: black;
+      padding: 20px 22px;
+      border-radius: 100%;
+      font-size: 16px;
+    }
+
+    .swiper-button-prev:after {
+      content: "prev";
+      background-color: white;
+      color: black;
+      padding: 20px 22px;
+      border-radius: 100%;
+      font-size: 16px;
+    }
+
+    .swiper-button-next {
+      position: absolute;
+      top: 46%;
+      right: 70px;
+    }
+
+    .swiper-button-prev {
+      position: absolute;
+      top: 46%;
+      left: 70px;
+    }
+
+    @media screen and (max-width: 749px){
+      .swiper-button-next {
+        right: 50px;
+      }
+
+      .swiper-button-prev {
+        left: 50px;
+      }
+    }
+
+    .sale-price {
+      text-decoration: line-through;
+    }
+
+    .regular-price, .compare-price {
+      font-weight: 700;
+      margin-right: 10px;
+    }
+
+    .slider-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .jdgm-prev-badge {
+      display: block !important;
+      margin: 20px 0px 8px 0px;
+    }
+
+    h3.heading-inner {
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+
+    .slider-text h3 a{
+      text-decoration: none;
+      color: black;
+    }
+</style>
+
+{% schema %}
+{
+  "name": "Bestsellers slider",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Enter slider heading here"
+    },
+    {
+      "type": "text",
+      "id": "button-text",
+      "label": "Enter button text here"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_time",
+      "label": "Autoplay time",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "stop_autoplay",
+      "label": "Stop autoplay",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "best selling slider",
+      "category": "custom"
+    }
+  ]
+}
+{% endschema %}
+
+<script>
+  var mySwiper = new Swiper('.swiper-container', {
+    direction: 'horizontal',
+    loop: false,
+    slidesPerView: 'auto',
+    spaceBetween: 24,
+    slidesOffsetAfter:0,
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    {% if section.settings.stop_autoplay %}
+
+    {% else %}
+      autoplay: {
+        delay: {{ section.settings.autoplay_time }}000,
+      },
+    {% endif %}
+
+    lazy: {
+      loadPrevNext: true,
+    },
+    on: {
+      lazyImageReady: (swiper) => {swiper.update()}
+    },
+  });
+</script>
